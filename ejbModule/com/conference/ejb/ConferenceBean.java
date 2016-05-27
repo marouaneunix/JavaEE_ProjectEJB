@@ -98,11 +98,38 @@ public class ConferenceBean {
         return per;
     }
 
+    public Personne getPersonneByCinV1( String cin ) {
+        System.out.println( "getPersonneByCin Function" );
+        Personne per = null;
+        try {
+            per = (Personne) em.createNamedQuery( "Personne.findByCin" )
+                    .setParameter( "cin", cin )
+                    .getSingleResult();
+        } catch ( Exception e ) {
+            e.getMessage();
+        }
+        return per;
+    }
+
     // Get ALL Personne
     public List<Personne> getAllPersonne() {
         System.out.println( "getAllPersonne Function" );
         List<Personne> personnes = null;
         personnes = em.createNamedQuery( "Personne.findAll" ).getResultList();
+        return personnes;
+    }
+
+    public List<Chair> getAllChair() {
+        List<Chair> personnes = null;
+        personnes = em.createNamedQuery( "Personne.findAllChair" ).setParameter( "classe", Chair.class )
+                .getResultList();
+        return personnes;
+    }
+
+    public List<Auteur> getAllAuteur() {
+        List<Auteur> personnes = null;
+        personnes = em.createNamedQuery( "Personne.findAllChair" ).setParameter( "classe", Auteur.class )
+                .getResultList();
         return personnes;
     }
 
@@ -115,7 +142,7 @@ public class ConferenceBean {
         System.out.println( "addorUpdateSession function" );
 
         Session ss = getSession( s );
-        System.out.println( ss.getArticleList().size() );
+        // System.out.println( ss.getArticleList().size() );
         if ( ss == null ) {
             try {
                 s.setDateFin( setDateFin( s ) );
@@ -149,8 +176,20 @@ public class ConferenceBean {
             addorUpdateArticle( newArt );
         }
         se.setArticleList( null );
-        em.remove( se );
+        se.setChair( null );
+        se.setProgramme( null );
+        em.flush();
+        System.out.println( "Befor Session DElete" );
+        em.remove( getSession( s ) );
 
+    }
+
+    public void deleteSessionV1( Session s ) {
+        Session ss = getSession( s );
+        ss.setChair( null );
+        ss.setProgramme( null );
+        addorUpdateSession( ss );
+        em.remove( getSession( s ) );
     }
 
     public Session getSession( Session s ) {
@@ -162,6 +201,17 @@ public class ConferenceBean {
     public List<Session> getAllSession() {
         List<Session> sessions = null;
         sessions = em.createNamedQuery( "Session.findAll" ).getResultList();
+        return sessions;
+    }
+
+    public List<Session> getSessionByDatePrg() {
+        Date d = new Date();
+        // SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd" );
+
+        System.out.println( d );
+        List<Session> sessions = em.createNamedQuery( "Programme.findSessionAll" )
+                .setParameter( "ThisDay", d ).getResultList();
+
         return sessions;
     }
 
@@ -189,7 +239,7 @@ public class ConferenceBean {
                 addorUpdatePersonne( newAut );
             }
             art1.setAuteurs( null );
-            em.remove( getArticle( art ) );
+            em.remove( getArticle( art1 ) );
         } else {
             throw new RuntimeException( "Article not found" );
         }
@@ -236,6 +286,10 @@ public class ConferenceBean {
         return em.find( Programme.class, prg.getProgrammeId() );
     }
 
+    public Programme getProgrammeById( int idPrg ) {
+        return em.find( Programme.class, idPrg );
+    }
+
     public List<Programme> getAllProgramme() {
         List<Programme> programmes = null;
         programmes = em.createNamedQuery( "Programme.findAll" ).getResultList();
@@ -255,9 +309,11 @@ public class ConferenceBean {
         cal.setTime( s.getDateDebute() );
         System.out.println( s.getArticleList().size() );
         for ( Article ar : s.getArticleList() ) {
-            System.out.println( "duree : " + ar.getDureeArticle() );
-            System.out.println( "Article ID : " + ar.getArticleId() );
-            f += ar.getDureeArticle();
+            if ( ar.isAccepter() ) {
+                System.out.println( "duree : " + ar.getDureeArticle() );
+                System.out.println( "Article ID : " + ar.getArticleId() );
+                f += ar.getDureeArticle();
+            }
         }
         cal.add( Calendar.MINUTE, f );
         // System.out.println( f );

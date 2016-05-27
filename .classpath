@@ -13,5 +13,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="src" path="/conference_PrJPA"/>
+	<classpathentry kind="lib" path="/home/mar1/Desktop/JavaEE-project/pass.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
